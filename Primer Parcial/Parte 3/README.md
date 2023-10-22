@@ -1,4 +1,4 @@
-# Ejemplo Documentación 
+
 ![Tinkercad](./img/ArduinoTinkercad.jpg)
 
 
@@ -19,7 +19,6 @@ Para prender el sistema hay que usar la fotoresistencia y para desenvolverse en 
 
   Con un vistazo a estas dos funciones tenemos un panorama general del tinkercad.
 
-(Breve explicación de la función)
   void loop() {
     int lecturaLuz = analogRead(FOTORESISTENCIA);
     if (lecturaLuz <1000) {
