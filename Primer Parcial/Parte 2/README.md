@@ -1,4 +1,3 @@
-# Ejemplo Documentación 
 ![Tinkercad](./img/ArduinoTinkercad.jpg)
 
 
