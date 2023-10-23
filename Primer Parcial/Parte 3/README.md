@@ -56,4 +56,4 @@ Para prender el sistema hay que usar la fotoresistencia y para desenvolverse en 
 - [proyecto](https://www.tinkercad.com/things/5JUe8FItEnv?sharecode=h_IaQiOU2XKbmI-hTpRlZ57o_pB4XmzIa56Sm0CUqRg)
 
 ## :tv: Link al video del proceso
-- [video]([https://www.youtube.com/watch?v=VyGjE8kx-O0](https://youtu.be/8pjSdELsRxI?si=tt4G5H3fExGdDsgv)https://youtu.be/8pjSdELsRxI?si=tt4G5H3fExGdDsgv)
+- [video](https://www.youtube.com/watch?v=8pjSdELsRxI)
