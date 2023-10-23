@@ -74,9 +74,13 @@ adicional según el último número de DNI.
 GitHub.
     
 ---------------------------------------------------------------------
-*/
+// Parcial Parte 4 Carnelos Duarte Joaquin Alejo 1D
 
-// Parcial Parte 3 Carnelos Duarte Joaquin Alejo 1D
+//https://github.com/CdJoa/SPD/tree/main/Primer%20Parcial/Parte%204
+
+//-Si tu número de documento termina en (0-3) 
+//deberás implementar a tu proyecto que el interruptor deslizantede la parte dos
+//tenga la función de encender y apagar el sistema, solo mostrando el contador.
 
 #define DISPLAY_A  10
 #define DISPLAY_B  11
@@ -144,17 +148,16 @@ void setup() {
 }
 
 void loop() {
-  int lecturaLuz = analogRead(FOTORESISTENCIA);
-  if (lecturaLuz <1000) {
-  // Serial.print("Luz: ");
-  // Serial.println(lecturaLuz); para averiguar el limite de mi fotoresistencia use un print
+  
+  slice = digitalRead(SLICE);//leemos el estado del slice
+  
+  if (slice == HIGH) {// en estado high accedemos al sistema
     sistema();
-  }
-  else{
+  } else{//caso contraro ("slice==low") apagamos todo
     digitalWrite(ledApagado, HIGH);
   	detenerMotor();
   	apagarDisplay();}
-}
+     }
 
 void sistema() {
   
@@ -163,15 +166,19 @@ void sistema() {
   int lecturaSensor = analogRead(SENSOR_TEMP);
   temperatura = map(lecturaSensor, 20, 358, -40, 125);
   
-  slice = digitalRead(SLICE);
-
-  girar();
-  // El cambio de modos entre normales y primos solo se da si cambio la temperatura y apreto el boton, sino el contador seguira en el mismo modo
-  //el sistema no prende a menos de que si o si se cumplan las condiciones de temperatura y slice
-  if (temperatura < 50 && slice == HIGH) {
+  
+  //ahora cambiamos entre numeros primos y numeros normales solo con la temperatura
+   if (temperatura < 50 ) {
     modoPrimos();
-  } else if (temperatura >= 50 && slice == LOW) {
+  } else if (temperatura >= 50) {
     modoNormal();  
+  }
+  
+  // ahora para acceder al giro del motor vamos a usar fotorresistencia
+  int lecturaLuz = analogRead(FOTORESISTENCIA);
+  if (lecturaLuz <1000)
+  {
+    girar();
   }
 
 }
@@ -274,6 +281,7 @@ void cuentaDisplay(int count) // esta funcion maneja la logica de la del contado
 void girar() {
     analogWrite(motorCC, 255); 
 }
+
 
 void detenerMotor() {//que va de 0 a 255 en cuanto a velocidad
   analogWrite(motorCC, 0); 
@@ -441,3 +449,4 @@ void apagarDisplay(){
     digitalWrite(DISPLAY_E, LOW);
     digitalWrite(DISPLAY_F, LOW);
     digitalWrite(DISPLAY_G, LOW);}
+
