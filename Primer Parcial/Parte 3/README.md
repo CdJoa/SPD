@@ -1,4 +1,4 @@
-
+## Primer Parcial Parte 3
 ![Tinkercad](./img/ArduinoTinkercad.jpg)
 
 
@@ -54,3 +54,6 @@ Para prender el sistema hay que usar la fotoresistencia y para desenvolverse en 
 
 ## :robot: Link al proyecto
 - [proyecto](https://www.tinkercad.com/things/5JUe8FItEnv?sharecode=h_IaQiOU2XKbmI-hTpRlZ57o_pB4XmzIa56Sm0CUqRg)
+
+## :tv: Link al video del proceso
+- [video]([https://www.youtube.com/watch?v=VyGjE8kx-O0](https://youtu.be/8pjSdELsRxI?si=tt4G5H3fExGdDsgv)https://youtu.be/8pjSdELsRxI?si=tt4G5H3fExGdDsgv)
