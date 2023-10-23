@@ -1,0 +1,443 @@
+/*
+-----------CONSIGNA PRIMER PARCIAL----------------------------------
+	Parcial domiciliario Sistemas de procesamiento de datos
+Parte 1: Contador de 0 a 99 con Display 7 Segmentos y Multiplexación
+Diseñar un contador de 0 a 99 utilizando dos displays de 7 segmentos y tres botones para
+controlar la cuenta. Debes implementar la técnica de multiplexación para mostrar los dígitos
+en los displays. El contador debe comenzar en 0 y debe ser capaz de aumentar o disminuir
+su valor en una unidad con los botones.
+- Sube todo el código y documentación del proyecto a un repositorio de GitHub. Proporciona
+el enlace al repositorio en tu respuesta.
+- Documenta el código de manera clara, explicando las funciones y cómo se realiza la
+multiplexación.
+- Proporciona un esquema o diagrama del circuito en el repositorio.
+
+
+Parte 2: Modificación con Interruptor Deslizante y Números Primos
+Modifica el proyecto de la Parte 1 de la siguiente manera:
+1. Sustituye uno de los botones por un interruptor deslizante (switch) de dos posiciones.
+Dependiendo de la posición del interruptor, el display debe mostrar o bien el contador (como
+en la Parte 1) o los números primos en el rango de 0 a 99.
+
+2. Investiga un componente electrónico adicional que podría mejorar este proyecto.
+Proporciona una descripción detallada del componente, su función y cómo se podría
+integrar en el proyecto.
+
+-Motor de cc
+-Motor de aficionado
+
+Investigar en la semana y agregar uno de los siguientes componentes
+
+-Sensor de flexión
+-Sensor de fuerza
+-Sensor de temperatura
+
+Parte 3: Modificación según el Último Número de Documento
+Modifica el proyecto de la Parte 2 de la siguiente manera:
+1. Considerando el último número de tu número de documento (DNI o documento de
+identidad), agrega un componente adicional que afecte el funcionamiento del proyecto.
+Describe en detalle qué hace este nuevo componente y cómo se integra en el proyecto.
+
+Parte 4: Modificación según el Último Número de Documento 
+Modifica el proyecto de la Parte 3 de la siguiente manera: 
+1. Considerando el último número de tu número de documento (DNI o documento de identidad), modifica una funcionalidad del proyecto.
+
+-Si tu número de documento termina en (0-3) deberás implementar a tu proyecto que el interruptor deslizante de la parte dos tenga la función de encender y apagar el sistema, solo mostrando el contador.
+
+-Si tu número de documento termina en (4-6) deberás implementar a tu proyecto que el motor solo funcione si el interruptor deslizante está del lado de los números primos. 
+
+-Si tu número de documento termina en (7-9) deberás implementar a tu proyecto que no muestre los números primos sino los impares. 
+
+
+- Sube la versión final del proyecto con la modificación basada en el último número de tu
+DNI al repositorio de GitHub mencionado anteriormente.
+
+- Añade una sección en la documentación que explique la lógica detrás de la modificación
+basada en el último número del DNI.
+
+Documentación General:
+- Crea un archivo README.md en el repositorio que explique cómo configurar y utilizar el
+proyecto, además de cualquier consideración especial.
+- Proporciona comentarios claros y detallados en el código para facilitar su comprensión.
+- Organiza el repositorio de manera limpia y estructurada, con carpetas adecuadas para
+diferentes partes del proyecto.
+Podes utilizar el siguiente repositorio como referencia:
+https://github.com/Estebamq/EjemploDocumentacion
+
+Evaluación:
+- Se evaluará la funcionalidad, el diseño y la precisión de las explicaciones de cada parte
+del proyecto.
+- Se tomarán en cuenta los componentes o características extra que mejoren el proyecto.
+- La parte 3 será evaluada según la originalidad y la integración exitosa del componente
+adicional según el último número de DNI.
+- Se tendrá en cuenta la calidad de la documentación y la organización del repositorio en
+GitHub.
+    
+---------------------------------------------------------------------
+*/
+
+// Parcial Parte 3 Carnelos Duarte Joaquin Alejo 1D
+
+#define DISPLAY_A  10
+#define DISPLAY_B  11
+#define DISPLAY_C  5
+#define DISPLAY_D  6
+#define DISPLAY_E  7
+#define DISPLAY_F  9
+#define DISPLAY_G  8
+
+#define motorCC 13
+
+#define SUBE 4
+#define BAJA 3
+#define SLICE 2
+
+#define DECENA A5
+#define UNIDAD A4
+
+#define APAGADOS 0
+#define TIMEDISPLAYON 10
+
+#define SENSOR_TEMP A0
+#define FOTORESISTENCIA A3
+
+#define ledApagado 12
+
+
+int contadorPrimos = 0;
+int contador = 0;
+int sube = 1;
+int subePrevia = 1;
+int baja = 1;
+int bajaPrevia = 1;
+int slice = {};
+int slicePrevia = 1;
+
+float temperatura = 0;
+
+
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(DISPLAY_A, OUTPUT);
+  pinMode(DISPLAY_B, OUTPUT);
+  pinMode(DISPLAY_C, OUTPUT);
+  pinMode(DISPLAY_D, OUTPUT);
+  pinMode(DISPLAY_E, OUTPUT);
+  pinMode(DISPLAY_F, OUTPUT);
+  pinMode(DISPLAY_G, OUTPUT);
+
+  pinMode(SUBE, INPUT_PULLUP);
+  pinMode(BAJA, INPUT_PULLUP);
+  pinMode(SLICE, INPUT_PULLUP);
+  
+  pinMode(motorCC, OUTPUT);
+
+  pinMode(UNIDAD, OUTPUT);
+  pinMode(DECENA, OUTPUT);
+
+  pinMode(ledApagado, OUTPUT);
+
+  
+  digitalWrite(DECENA, LOW);
+  digitalWrite(UNIDAD, LOW);
+}
+
+void loop() {
+  int lecturaLuz = analogRead(FOTORESISTENCIA);
+  if (lecturaLuz <1000) {
+  // Serial.print("Luz: ");
+  // Serial.println(lecturaLuz); para averiguar el limite de mi fotoresistencia use un print
+    sistema();
+  }
+  else{
+    digitalWrite(ledApagado, HIGH);
+  	detenerMotor();
+  	apagarDisplay();}
+}
+
+void sistema() {
+  
+  digitalWrite(ledApagado, LOW);
+	
+  int lecturaSensor = analogRead(SENSOR_TEMP);
+  temperatura = map(lecturaSensor, 20, 358, -40, 125);
+  
+  slice = digitalRead(SLICE);
+
+  girar();
+  // El cambio de modos entre normales y primos solo se da si cambio la temperatura y apreto el boton, sino el contador seguira en el mismo modo
+  //el sistema no prende a menos de que si o si se cumplan las condiciones de temperatura y slice
+  if (temperatura < 50 && slice == HIGH) {
+    modoPrimos();
+  } else if (temperatura >= 50 && slice == LOW) {
+    modoNormal();  
+  }
+
+}
+
+void modoPrimos() {
+  int presion = estados_presion_boton();//llamamos al estado de los botones de los botones, pero con accionar en numeros primos
+  if (presion == SUBE) {
+    presion_subePrimos();
+  } 
+  if (presion == BAJA) {
+    presion_bajaPrimos();
+  }
+  if (presion == SLICE) {
+    contadorPrimos = contador=0; 
+    }
+  cuentaDisplay(contadorPrimos); // Muestra números primos en el display
+}
+
+// Modo de contador normal
+void modoNormal() {
+  int presion = estados_presion_boton();//llamamos al estado de los botones de los botones
+  if (presion == SUBE) {
+    presion_sube();
+  } else if (presion == BAJA) {
+    presion_baja();
+  } else if (presion == SLICE) {
+    contador= contadorPrimos=0;
+    }
+  cuentaDisplay(contador); // Muestra el contador normal en el display
+}
+
+// Funciones de incremento y decremento del contador
+void presion_sube() {
+  contador++;
+  if (contador > 99) {
+    contador = 0;
+  }
+}
+
+void presion_baja() {
+  contador--;
+  if (contador < 0) {
+    contador = 99;
+  }
+}
+
+void presion_subePrimos() {
+  contadorPrimos++; // Incrementa el contador en modo primos
+  while (!esPrimo(contadorPrimos)) {
+    contadorPrimos++; //este bucle va a incrementar el valor del contador hasta encontrar el siguiente primo
+  }
+    if (contadorPrimos > 97) {
+    contadorPrimos = 2; //no contamos el 0, ni el 1 como primos
+  }
+}
+
+void presion_bajaPrimos() {
+  contadorPrimos--; // Decrementa el contador en modo primos
+  while (!esPrimo(contadorPrimos)) {
+    contadorPrimos--; //este bucle va a incrementar el valor del contador hasta encontrar el siguiente primo
+  }
+  if (contadorPrimos < 2) {
+    contadorPrimos = 97;//ultimo numero primo entre el 0 y el 100
+  }
+}
+
+// Funciones de manejo del display
+void dibujoDisplay(int digito) {
+  if (digito == UNIDAD) //manejamos los digitals dependiendo el valor a cambiar
+  {
+      digitalWrite(UNIDAD, LOW); 
+      digitalWrite(DECENA, HIGH); 
+      delay(TIMEDISPLAYON);
+  }
+  else if (digito == DECENA)
+  {
+      digitalWrite(UNIDAD, HIGH);
+      digitalWrite(DECENA, LOW);
+      delay(TIMEDISPLAYON);
+  }
+  
+  else //con este else mantenemos a los displays prendidos cuando hay cambios, evita grises en el display 
+  {
+      digitalWrite(UNIDAD, HIGH);
+      digitalWrite(DECENA, HIGH);
+  }
+}
+
+void cuentaDisplay(int count) // esta funcion maneja la logica de la del contador en el display
+{
+  dibujoDisplay(APAGADOS); // el apagados es como si arrancaramos en 0
+  digitoDisplay(count/10); //manejamos en 10 al display unidad
+  dibujoDisplay(DECENA);//entramos a la decena
+  dibujoDisplay(APAGADOS);//luego de entrar a la decena con apagados volvemos a la unidad
+  digitoDisplay(count - 10*((int)count/10)); //manejamos la decena pero condicionada en 10 unidades 
+  dibujoDisplay(UNIDAD); //entramos a la unidad
+}
+
+
+void girar() {
+    analogWrite(motorCC, 255); 
+}
+
+void detenerMotor() {//que va de 0 a 255 en cuanto a velocidad
+  analogWrite(motorCC, 0); 
+}
+
+
+// Funciones de manejo de los botones
+int estados_presion_boton(void) { 
+  sube = digitalRead(SUBE); // con los read leemos los estados de los botones
+  baja = digitalRead(BAJA);
+  slice = digitalRead(SLICE);
+
+  if (sube == 1) {// si se llegara a tocar, se cambian los valores
+    subePrevia = 1; 
+  }
+  if (baja) {
+    bajaPrevia = 1;
+  }
+  if(slice) {
+    slicePrevia = 1;
+  }
+
+ if (sube == 0 && sube != subePrevia) {//si se rompe la igualdad
+  subePrevia = sube;
+  return SUBE; //cambiamos los valores de previa y sube, pero retornamos la accion del boton presionado
+  }
+
+  if (baja == 0 && baja != bajaPrevia) {
+    bajaPrevia = baja;
+    return BAJA;
+  }
+
+  if (slice == 0 && slice != slicePrevia) {
+    slicePrevia = slice;
+    return SLICE;
+}
+  return 0; // Toquemos lo que toquemos, el estado del botón volverá a 0
+}
+
+// Función para verificar si un número es primo
+bool esPrimo(int num) {
+  if (num == 1 or num ==0) {
+    return false;
+  }
+  if (num <= 3) {
+    return true;
+  }
+  if (num % 2 == 0 || num % 3 == 0) {
+    return false;
+  }
+  for (int i = 5; i * i <= num; i += 6) {
+    if (num % i == 0 || num % (i + 2) == 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+
+void digitoDisplay(int digit) { //funcion para que un display prenda un digiyo
+  apagarDisplay();
+
+  switch (digit) {
+    case 1:
+    {
+      digitalWrite(DISPLAY_B, HIGH);
+      digitalWrite(DISPLAY_C, HIGH);
+      break;
+    }
+    case 2:
+    {
+      digitalWrite(DISPLAY_A, HIGH);
+      digitalWrite(DISPLAY_B, HIGH);
+      digitalWrite(DISPLAY_D, HIGH);
+      digitalWrite(DISPLAY_E, HIGH);
+      digitalWrite(DISPLAY_G, HIGH);
+      break;
+    }
+
+    case 3:
+    {
+      digitalWrite(DISPLAY_A, HIGH);
+      digitalWrite(DISPLAY_B, HIGH);
+      digitalWrite(DISPLAY_C, HIGH);
+      digitalWrite(DISPLAY_D, HIGH);
+      digitalWrite(DISPLAY_G, HIGH);
+      break;
+    }
+    case 4:
+    {
+      digitalWrite(DISPLAY_B, HIGH);
+      digitalWrite(DISPLAY_C, HIGH);
+      digitalWrite(DISPLAY_F, HIGH);
+      digitalWrite(DISPLAY_G, HIGH);
+      break;
+    }
+
+    case 5:
+    {
+      digitalWrite(DISPLAY_A, HIGH);
+      digitalWrite(DISPLAY_C, HIGH);
+      digitalWrite(DISPLAY_D, HIGH);
+      digitalWrite(DISPLAY_F, HIGH);
+      digitalWrite(DISPLAY_G, HIGH);
+      break;
+    }
+    case 6:
+    {
+      digitalWrite(DISPLAY_A, HIGH);
+      digitalWrite(DISPLAY_C, HIGH);
+      digitalWrite(DISPLAY_D, HIGH);
+      digitalWrite(DISPLAY_E, HIGH);
+      digitalWrite(DISPLAY_F, HIGH);
+      digitalWrite(DISPLAY_G, HIGH);
+      break;
+    }
+
+    case 7:
+    {
+      digitalWrite(DISPLAY_A, HIGH);
+      digitalWrite(DISPLAY_B, HIGH);
+      digitalWrite(DISPLAY_C, HIGH);
+      break;
+    }
+    case 8:
+    {
+      digitalWrite(DISPLAY_A, HIGH);
+      digitalWrite(DISPLAY_B, HIGH);
+      digitalWrite(DISPLAY_C, HIGH);
+      digitalWrite(DISPLAY_D, HIGH);
+      digitalWrite(DISPLAY_E, HIGH);
+      digitalWrite(DISPLAY_F, HIGH);
+      digitalWrite(DISPLAY_G, HIGH);
+      break;
+    }
+    case 9:
+    {
+      digitalWrite(DISPLAY_A, HIGH);
+      digitalWrite(DISPLAY_B, HIGH);
+      digitalWrite(DISPLAY_C, HIGH);
+      digitalWrite(DISPLAY_D, HIGH);
+      digitalWrite(DISPLAY_F, HIGH);
+      digitalWrite(DISPLAY_G, HIGH);
+      break;
+    }
+
+    case 0:
+    {
+      digitalWrite(DISPLAY_A, HIGH);
+      digitalWrite(DISPLAY_B, HIGH);
+      digitalWrite(DISPLAY_C, HIGH);
+      digitalWrite(DISPLAY_D, HIGH);
+      digitalWrite(DISPLAY_E, HIGH);
+      digitalWrite(DISPLAY_F, HIGH);
+      break;
+    }
+  }
+}
+
+void apagarDisplay(){
+	digitalWrite(DISPLAY_A, LOW);
+    digitalWrite(DISPLAY_B, LOW);
+    digitalWrite(DISPLAY_C, LOW);
+    digitalWrite(DISPLAY_D, LOW);
+    digitalWrite(DISPLAY_E, LOW);
+    digitalWrite(DISPLAY_F, LOW);
+    digitalWrite(DISPLAY_G, LOW);}
