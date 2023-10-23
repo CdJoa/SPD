@@ -7,7 +7,7 @@
 
 
 ## Proyecto: Primer Parcial
-![Tinkercad](./img/arduino-parcial-parte-3.png)
+![Tinkercad](./img/arduino-parcial-parte-4.png)
 
 
 ## Descripción
