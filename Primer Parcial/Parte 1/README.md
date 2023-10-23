@@ -5,7 +5,7 @@
 - Carnelos Duarte Joaquin Alejo
 
 
-## Proyecto: Contador binario.
+## Proyecto: Primer Parcial
 ![Tinkercad](./img/arduino-parcial-parte-1.png)
 
 
